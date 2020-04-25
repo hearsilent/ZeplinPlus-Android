@@ -20,13 +20,16 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
+# Application classes that will be serialized/deserialized over Jackson
+-keep class hearsilent.zeplin.models.** { *; }
+
 # Rename packages
 -optimizationpasses 30
 -mergeinterfacesaggressively
 -dontpreverify
 -optimizations !code/simplification/arithmetic
 
--repackageclasses 'hearsilent.zeplin'
+-repackageclasses hearsilent.zeplin
 -allowaccessmodification
 -useuniqueclassmembernames
 -keeppackagenames doNotKeepAThing
