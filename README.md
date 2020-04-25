@@ -11,7 +11,8 @@ ZeplinPlus is an Android app can view Zeplin screens by using the [Zeplin API](h
    
 **Step 1.** To use the Zeplin API for creating a custom integration, you either need to create a personal access token or a Zeplin app. You can create them from the web app under [Developer](https://app.zeplin.io/profile/developer) tab in your profile page.
 
-**Step 2.** Create a `OauthConstant` object put in [`hearsilent.zeplin.libs`](https://github.com/hearsilent/ZeplinPlus-Android/tree/master/app/src/main/java/hearsilent/zeplin/libs), and put 3 const static variable in this object. Like this:
+**Step 2.** Create a `OauthConstant` object put in [`hearsilent.zeplin.libs`](https://github.com/hearsilent/ZeplinPlus-Android/tree/master/app/src/main/java/hearsilent/zeplin/libs), and put 3 const static variable in this object.  
+Like this:
 ```kotlin
 package hearsilent.zeplin.libs
 
