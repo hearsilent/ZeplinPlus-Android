@@ -9,18 +9,26 @@
     android:layout_marginEnd="6dp"
     android:layout_marginBottom="22dp">
 
-    <ImageView
-        android:id="@+id/imageView"
-        style="@style/PrimarySelectableItemForeground"
+    <FrameLayout
+        android:id="@+id/view_container"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:background="@color/placeholder"
-        android:contentDescription="@null"
-        android:transitionName="screen"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        tools:layout_constraintDimensionRatio="H,3:4" />
+        tools:layout_constraintDimensionRatio="H,3:4">
+
+        <hearsilent.zeplin.libs.view.FixedImageView
+            android:id="@+id/imageView"
+            style="@style/PrimarySelectableItemForeground"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/placeholder"
+            android:contentDescription="@null"
+            android:scaleType="fitXY"
+            android:transitionName="screen"
+            tools:layout_height="match_parent" />
+    </FrameLayout>
 
     <TextView
         android:id="@+id/textView_updated"
@@ -30,7 +38,7 @@
         android:textColor="@color/text_secondary"
         android:textSize="12sp"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/imageView"
+        app:layout_constraintTop_toBottomOf="@id/view_container"
         tools:text="13h" />
 
     <TextView
