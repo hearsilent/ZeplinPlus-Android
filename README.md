@@ -4,10 +4,10 @@
 ZeplinPlus is an Android app can view Zeplin screens by using the [Zeplin API](https://docs.zeplin.dev/reference)
 
 ## Screenshot
-<img src="https://raw.githubusercontent.com/hearsilent/ZeplinPlus-Android/master/screenshots/device-2020-04-25-205331.png" height="500">
-<img src="https://raw.githubusercontent.com/hearsilent/ZeplinPlus-Android/master/screenshots/device-2020-04-25-205159.png" height="500">
-<img src="https://raw.githubusercontent.com/hearsilent/ZeplinPlus-Android/master/screenshots/device-2020-04-25-205850.png" height="500">
-<img src="https://raw.githubusercontent.com/hearsilent/ZeplinPlus-Android/master/screenshots/device-2020-04-25-210031.png" height="500">
+<img src="https://github.com/hearsilent/ZeplinPlus-Android/raw/master/screenshots/device-2020-04-25-205331.png" height="500">
+<img src="https://github.com/hearsilent/ZeplinPlus-Android/raw/master/screenshots/device-2020-04-25-205159.png" height="500">
+<img src="https://github.com/hearsilent/ZeplinPlus-Android/raw/master/screenshots/device-2020-04-25-205850.png" height="500">
+<img src="https://github.com/hearsilent/ZeplinPlus-Android/raw/master/screenshots/device-2020-04-25-210031.png" height="500">
 
 ## Setup
    
