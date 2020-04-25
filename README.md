@@ -39,6 +39,8 @@ object OauthConstant {
 ## TODO
 - Show members
 - Show notes
+- Sort screens by sections
+- Sort screens by last updated
 - Switch screen version 
 - Add note
 - Share project/screen
