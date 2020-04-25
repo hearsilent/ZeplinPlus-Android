@@ -18,6 +18,7 @@
             android:id="@+id/view_container"
             android:layout_width="0dp"
             android:layout_height="0dp"
+            android:background="@color/placeholder"
             app:layout_constraintDimensionRatio="H,3:1"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -27,7 +28,6 @@
                 android:id="@+id/imageView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/placeholder"
                 android:contentDescription="@null"
                 android:scaleType="fitXY"
                 tools:layout_height="match_parent" />
