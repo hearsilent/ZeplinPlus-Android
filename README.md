@@ -27,7 +27,7 @@ object OauthConstant {
 **Step 3.** Build app with ❤️ & Enjoy it!
 
 ## Features
-- Auto DayNight swith
+- Auto DayNight switch
 - Support Zeplin app link (zpl)
 - Auto refresh oauth token
 - Fetch projects
