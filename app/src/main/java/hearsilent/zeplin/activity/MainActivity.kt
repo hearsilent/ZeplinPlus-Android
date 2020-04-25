@@ -4,12 +4,15 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
+import android.text.format.DateUtils
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import com.fasterxml.jackson.databind.ObjectMapper
+import hearsilent.zeplin.BuildConfig
 import hearsilent.zeplin.R
 import hearsilent.zeplin.adapter.ProjectAdapter
 import hearsilent.zeplin.callback.ProjectCallback
@@ -49,7 +52,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             checkZeplinToken()
         } else {
             if (!checkIntent()) {
-                fetchProject()
+                if (System.currentTimeMillis() > model.expires_in - DateUtils.HOUR_IN_MILLIS) {
+                    if (System.currentTimeMillis() > model.refresh_expires_in - DateUtils.HOUR_IN_MILLIS) {
+                        Memory.setObject(this, Constant.PREF_ZEPLIN_TOKEN, null)
+                        swipeRefreshLayout.isEnabled = false
+                        checkZeplinToken()
+                    } else {
+                        if (BuildConfig.DEBUG) {
+                            Log.i(Constant.TAG, "Refresh token: ${model.refresh_token}")
+                        }
+                        fetchToken(model.refresh_token, true)
+                    }
+                } else {
+                    fetchProject()
+                }
             }
         }
     }
@@ -146,45 +162,47 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             recyclerView.visibility = View.VISIBLE
 
             val code = data.getQueryParameter("code")
-            code?.let {
-                swipeRefreshLayout.isRefreshing = true
-                NetworkHelper.zeplinOauth(it, object : TokenCallback() {
-                    override fun onSuccess(token: TokenModel) {
-                        if (isFinishing) {
-                            return
-                        }
-                        Memory.setObject(this@MainActivity, Constant.PREF_ZEPLIN_TOKEN, token)
-                        runOnUiThread {
-                            Toast.makeText(
-                                this@MainActivity,
-                                R.string.get_zeplin_token_success,
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            fetchProject()
-                        }
-                    }
-
-                    override fun onFail(errorMessage: String?) {
-                        if (isFinishing) {
-                            return
-                        }
-                        runOnUiThread {
-                            swipeRefreshLayout.isRefreshing = false
-                            button_login.visibility = View.VISIBLE
-                            recyclerView.visibility = View.INVISIBLE
-                            Toast.makeText(
-                                this@MainActivity,
-                                errorMessage,
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
-                    }
-                })
-            }
+            code?.let { fetchToken(code, false) }
         } else {
             button_login.visibility = View.VISIBLE
             recyclerView.visibility = View.INVISIBLE
         }
+    }
+
+    private fun fetchToken(code: String, isRefresh: Boolean) {
+        swipeRefreshLayout.isRefreshing = true
+        NetworkHelper.zeplinOauth(code, isRefresh, object : TokenCallback() {
+            override fun onSuccess(token: TokenModel) {
+                if (isFinishing) {
+                    return
+                }
+                Memory.setObject(this@MainActivity, Constant.PREF_ZEPLIN_TOKEN, token)
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        if (isRefresh) R.string.refresh_zeplin_token_success else R.string.get_zeplin_token_success,
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    fetchProject()
+                }
+            }
+
+            override fun onFail(errorMessage: String?) {
+                if (isFinishing) {
+                    return
+                }
+                runOnUiThread {
+                    swipeRefreshLayout.isRefreshing = false
+                    button_login.visibility = View.VISIBLE
+                    recyclerView.visibility = View.INVISIBLE
+                    Toast.makeText(
+                        this@MainActivity,
+                        errorMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        })
     }
 
     private fun fetchProject() {
@@ -222,7 +240,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if (v == button_login) {
             val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
             builder.setToolbarColor(
-                ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
+                ContextCompat.getColor(this@MainActivity, R.color.toolbar)
             )
             val customTabsIntent: CustomTabsIntent = builder.build()
             customTabsIntent.launchUrl(

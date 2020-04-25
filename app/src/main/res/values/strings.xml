@@ -14,5 +14,6 @@
 
     <string name="login_with_zeplin">Login with Zeplin</string>
     <string name="get_zeplin_token_success">Zeplin authorized</string>
+    <string name="refresh_zeplin_token_success">Token refreshed</string>
 
 </resources>

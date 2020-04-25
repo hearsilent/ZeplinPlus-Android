@@ -2,6 +2,7 @@ package hearsilent.zeplin.libs
 
 import android.content.Context
 import android.text.TextUtils
+import android.text.format.DateUtils
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import hearsilent.zeplin.callback.*
@@ -44,11 +45,11 @@ object NetworkHelper {
         )?.access_token
     }
 
-    fun zeplinOauth(code: String, callback: TokenCallback) {
+    fun zeplinOauth(code: String, isRefresh: Boolean, callback: TokenCallback) {
         val builder = FormBody.Builder()
-        builder.add("grant_type", "authorization_code")
-        builder.add("code", code)
-        builder.add("redirect_uri", Constant.REDIRECT_URI)
+        builder.add("grant_type", if (isRefresh) "refresh_token" else "authorization_code")
+        builder.add(if (isRefresh) "refresh_token" else "code", code)
+        if (!isRefresh) builder.add("redirect_uri", Constant.REDIRECT_URI)
         builder.add("client_id", Constant.CLIENT_ID)
         builder.add("client_secret", Constant.CLIENT_SECRET)
 
@@ -67,6 +68,10 @@ object NetworkHelper {
                     val body = responseBodyCopy.string()
                     val model = jacksonObjectMapper().readerFor(TokenModel::class.java)
                         .readValue<TokenModel>(body)
+                    model.expires_in *= DateUtils.SECOND_IN_MILLIS
+                    model.expires_in += System.currentTimeMillis()
+                    model.refresh_expires_in *= DateUtils.SECOND_IN_MILLIS
+                    model.refresh_expires_in += System.currentTimeMillis()
                     callback.onSuccess(model)
                 } catch (e: Exception) {
                     callback.onFail(e.toString())
