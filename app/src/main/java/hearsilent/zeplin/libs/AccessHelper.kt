@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import hearsilent.zeplin.callback.ProjectsCallback
 import hearsilent.zeplin.callback.ScreenCallback
+import hearsilent.zeplin.callback.ScreensCallback
 import hearsilent.zeplin.callback.TokenCallback
 import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
@@ -24,6 +25,8 @@ object AccessHelper {
     private const val ZEPLIN_OAUTH_ACCESS_URL = "${ZEPLIN_BASE_URL}/oauth/token"
 
     private const val ZEPLIN_PROJECTS_URL = "${ZEPLIN_BASE_URL}/projects"
+    private const val ZEPLIN_SCREENS_URL =
+        "${ZEPLIN_BASE_URL}/projects/%s/screens?sort=section&limit=999&offset=0"
     private const val ZEPLIN_SCREEN_URL = "${ZEPLIN_BASE_URL}/projects/%s/screens/%s"
 
     private var mClient: OkHttpClient = init()
@@ -97,6 +100,38 @@ object AccessHelper {
                     val model = jacksonObjectMapper().readerFor(object :
                         TypeReference<List<ProjectModel>>() {})
                         .readValue<List<ProjectModel>>(body)
+                    callback.onSuccess(model)
+                } catch (e: Exception) {
+                    callback.onFail(e.toString())
+                }
+            }
+        })
+    }
+
+    fun getScreens(context: Context, pid: String, callback: ScreensCallback) {
+        val token = getOauthToken(context)
+        if (TextUtils.isEmpty(token)) {
+            callback.onFail("Token is empty.")
+            return
+        }
+
+        val url = String.format(Locale.getDefault(), ZEPLIN_SCREENS_URL, pid)
+        val request: Request =
+            Request.Builder().header("authorization", "Bearer $token").url(url)
+                .get().build()
+
+        mClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback.onFail(e.toString())
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val responseBodyCopy = response.peekBody(Long.MAX_VALUE)
+                    val body = responseBodyCopy.string()
+                    val model = jacksonObjectMapper().readerFor(object :
+                        TypeReference<List<ScreenModel>>() {})
+                        .readValue<List<ScreenModel>>(body)
                     callback.onSuccess(model)
                 } catch (e: Exception) {
                     callback.onFail(e.toString())

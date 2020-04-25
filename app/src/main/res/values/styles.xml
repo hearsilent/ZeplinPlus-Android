@@ -10,4 +10,19 @@
         <item name="android:statusBarColor">@color/colorPrimaryDark</item>
     </style>
 
+    <style name="PrimarySelectableItemTheme">
+        <item name="colorControlHighlight">@color/ripple_primary</item>
+    </style>
+
+    <style name="PrimarySelectableItemForeground">
+        <item name="android:theme">@style/PrimarySelectableItemTheme</item>
+        <item name="android:foreground">?attr/selectableItemBackground</item>
+    </style>
+
+    <style name="TransitionAppTheme" parent="AppTheme">
+        <item name="android:windowContentTransitions">true</item>
+        <item name="android:windowEnterTransition">@transition/default_window_fade</item>
+        <item name="android:windowExitTransition">@transition/default_window_fade</item>
+    </style>
+
 </resources>

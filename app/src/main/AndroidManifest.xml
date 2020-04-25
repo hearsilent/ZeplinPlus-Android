@@ -27,7 +27,12 @@
                 <data android:scheme="zpl" />
             </intent-filter>
         </activity>
-        <activity android:name=".activity.ScreenActivity" />
+        <activity
+            android:name=".activity.ProjectActivity"
+            android:theme="@style/TransitionAppTheme" />
+        <activity
+            android:name=".activity.ScreenActivity"
+            android:theme="@style/TransitionAppTheme" />
     </application>
 
 </manifest>

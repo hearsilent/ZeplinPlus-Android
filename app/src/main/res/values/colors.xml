@@ -11,6 +11,7 @@
     <color name="placeholder">@color/grey_300</color>
 
     <color name="ripple">#1f000000</color>
+    <color name="ripple_primary">#1fF69833</color>
 
     <color name="dividers">#1f000000</color>
     <color name="text_disabled">#42000000</color>
