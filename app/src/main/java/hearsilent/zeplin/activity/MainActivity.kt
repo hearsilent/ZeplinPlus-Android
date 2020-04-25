@@ -33,10 +33,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setUpViews() {
+        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
+        swipeRefreshLayout.setOnRefreshListener { fetchProject() }
+
         button_login.setOnClickListener(this)
 
         val model = Memory.getObject(this, Constant.PREF_ZEPLIN_TOKEN, TokenModel::class.java)
         if (model == null) {
+            swipeRefreshLayout.isEnabled = false
             checkZeplinToken()
         } else {
             if (!checkIntent()) {
@@ -52,6 +56,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 val pid = data.getQueryParameter("pid")
                 val sid = data.getQueryParameter("sids")
                 if (!TextUtils.isEmpty(pid) && !TextUtils.isEmpty(sid)) {
+                    swipeRefreshLayout.isRefreshing = true
                     AccessHelper.getScreen(this, pid!!, sid!!, object : ScreenCallback() {
                         override fun onSuccess(screen: ScreenModel) {
                             if (isFinishing) {
@@ -96,8 +101,12 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
 
             val code = data.getQueryParameter("code")
             code?.let {
+                swipeRefreshLayout.isRefreshing = true
                 AccessHelper.zeplinOauth(it, object : TokenCallback() {
                     override fun onSuccess(token: TokenModel) {
+                        if (isFinishing) {
+                            return
+                        }
                         Memory.setObject(this@MainActivity, Constant.PREF_ZEPLIN_TOKEN, token)
                         runOnUiThread {
                             Toast.makeText(
@@ -110,7 +119,11 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     }
 
                     override fun onFail(errorMessage: String?) {
+                        if (isFinishing) {
+                            return
+                        }
                         runOnUiThread {
+                            swipeRefreshLayout.isRefreshing = false
                             button_login.visibility = View.VISIBLE
                             recyclerView.visibility = View.INVISIBLE
                             Toast.makeText(
@@ -129,16 +142,26 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun fetchProject() {
+        swipeRefreshLayout.isEnabled = true
+        swipeRefreshLayout.isRefreshing = true
         AccessHelper.getProjects(this, object : ProjectsCallback() {
             override fun onSuccess(projects: List<ProjectModel>) {
+                if (isFinishing) {
+                    return
+                }
                 runOnUiThread {
+                    swipeRefreshLayout.isRefreshing = false
                     recyclerView.setHasFixedSize(true)
                     recyclerView.adapter = ProjectAdapter(this@MainActivity, projects)
                 }
             }
 
             override fun onFail(errorMessage: String?) {
+                if (isFinishing) {
+                    return
+                }
                 runOnUiThread {
+                    swipeRefreshLayout.isRefreshing = false
                     Toast.makeText(
                         this@MainActivity,
                         errorMessage,
