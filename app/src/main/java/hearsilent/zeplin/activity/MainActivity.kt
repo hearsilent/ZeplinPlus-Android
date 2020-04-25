@@ -44,8 +44,13 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
         swipeRefreshLayout.setOnRefreshListener { fetchProject() }
 
+        button_empty.setOnClickListener(this)
         button_login.setOnClickListener(this)
 
+        checkToken()
+    }
+
+    private fun checkToken() {
         val model = Memory.getObject(this, Constant.PREF_ZEPLIN_TOKEN, TokenModel::class.java)
         if (model == null) {
             swipeRefreshLayout.isEnabled = false
@@ -193,19 +198,27 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
                 runOnUiThread {
                     swipeRefreshLayout.isRefreshing = false
-                    button_login.visibility = View.VISIBLE
-                    recyclerView.visibility = View.INVISIBLE
-                    Toast.makeText(
-                        this@MainActivity,
-                        errorMessage,
-                        Toast.LENGTH_LONG
-                    ).show()
+                    if (isRefresh) {
+                        textView_empty.visibility = View.VISIBLE
+                        button_empty.visibility = View.VISIBLE
+                        recyclerView.visibility = View.INVISIBLE
+                    } else {
+                        button_login.visibility = View.VISIBLE
+                        recyclerView.visibility = View.INVISIBLE
+                        Toast.makeText(
+                            this@MainActivity,
+                            errorMessage,
+                            Toast.LENGTH_LONG
+                        ).show()
+                    }
                 }
             }
         })
     }
 
     private fun fetchProject() {
+        textView_empty.visibility = View.GONE
+        button_empty.visibility = View.GONE
         swipeRefreshLayout.isEnabled = true
         swipeRefreshLayout.isRefreshing = true
         NetworkHelper.getProjects(this, object : ProjectsCallback() {
@@ -215,6 +228,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
                 runOnUiThread {
                     swipeRefreshLayout.isRefreshing = false
+                    recyclerView.visibility = View.VISIBLE
                     recyclerView.setHasFixedSize(true)
                     recyclerView.adapter = ProjectAdapter(this@MainActivity, projects)
                 }
@@ -226,6 +240,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 }
                 runOnUiThread {
                     swipeRefreshLayout.isRefreshing = false
+                    textView_empty.visibility = View.VISIBLE
+                    button_empty.visibility = View.VISIBLE
+                    recyclerView.visibility = View.INVISIBLE
                     Toast.makeText(
                         this@MainActivity,
                         errorMessage,
@@ -237,7 +254,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        if (v == button_login) {
+        if (v == button_empty) {
+            checkToken()
+        } else if (v == button_login) {
             val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
             builder.setToolbarColor(
                 ContextCompat.getColor(this@MainActivity, R.color.toolbar)

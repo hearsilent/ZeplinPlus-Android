@@ -2,6 +2,7 @@ package hearsilent.zeplin.activity
 
 import android.os.Bundle
 import android.view.MenuItem
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
@@ -14,9 +15,10 @@ import hearsilent.zeplin.models.ScreenModel
 import kotlinx.android.synthetic.main.activity_main.*
 
 
-class ProjectActivity : AppCompatActivity() {
+class ProjectActivity : AppCompatActivity(), View.OnClickListener {
 
     private var mProjectModel: ProjectModel? = null
+    private var mScreenAdapter: ScreenAdapter? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,10 +39,14 @@ class ProjectActivity : AppCompatActivity() {
             .readValue<ProjectModel>(intent.extras!!.getString("project"))
         supportActionBar!!.title = mProjectModel!!.name
 
+        button_empty.setOnClickListener(this)
+
         fetchScreens()
     }
 
     private fun fetchScreens() {
+        textView_empty.visibility = View.GONE
+        button_empty.visibility = View.GONE
         swipeRefreshLayout.isRefreshing = true
         NetworkHelper.getScreens(this, mProjectModel!!.id, object : ScreensCallback() {
             override fun onSuccess(screens: List<ScreenModel>) {
@@ -49,8 +55,10 @@ class ProjectActivity : AppCompatActivity() {
                 }
                 runOnUiThread {
                     swipeRefreshLayout.isRefreshing = false
+                    recyclerView.visibility = View.VISIBLE
                     recyclerView.setHasFixedSize(true)
-                    recyclerView.adapter = ScreenAdapter(this@ProjectActivity, screens)
+                    mScreenAdapter = ScreenAdapter(this@ProjectActivity, screens)
+                    recyclerView.adapter = mScreenAdapter
                 }
             }
 
@@ -60,6 +68,9 @@ class ProjectActivity : AppCompatActivity() {
                 }
                 runOnUiThread {
                     swipeRefreshLayout.isRefreshing = false
+                    textView_empty.visibility = View.VISIBLE
+                    button_empty.visibility = View.VISIBLE
+                    recyclerView.visibility = View.INVISIBLE
                     Toast.makeText(
                         this@ProjectActivity,
                         errorMessage,
@@ -68,6 +79,19 @@ class ProjectActivity : AppCompatActivity() {
                 }
             }
         })
+    }
+
+    override fun onClick(v: View?) {
+        if (v == button_empty) {
+            fetchScreens()
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        if (mScreenAdapter != null) {
+            mScreenAdapter!!.notifyDataSetChanged()
+        }
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {

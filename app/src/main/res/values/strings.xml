@@ -10,7 +10,8 @@
     <string name="duration_minute">%dm</string>
     <string name="duration_now">now</string>
 
-    <string name="loading">Loading&#8230;</string>
+    <string name="fail_to_load">Fail to load</string>
+    <string name="retry">Retry</string>
 
     <string name="login_with_zeplin">Login with Zeplin</string>
     <string name="get_zeplin_token_success">Zeplin authorized</string>

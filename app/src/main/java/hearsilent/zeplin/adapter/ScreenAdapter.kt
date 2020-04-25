@@ -36,7 +36,7 @@ class ScreenAdapter(
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
         init {
-            itemView.imageView.setOnClickListener(this)
+            itemView.view_container.setOnClickListener(this)
         }
 
         override fun onClick(v: View?) {

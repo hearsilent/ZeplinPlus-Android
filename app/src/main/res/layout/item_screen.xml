@@ -11,6 +11,7 @@
 
     <FrameLayout
         android:id="@+id/view_container"
+        style="@style/PrimarySelectableItemForeground"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:background="@color/placeholder"
@@ -21,7 +22,6 @@
 
         <hearsilent.zeplin.libs.view.FixedImageView
             android:id="@+id/imageView"
-            style="@style/PrimarySelectableItemForeground"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:contentDescription="@null"
