@@ -12,6 +12,10 @@ object LongExtension {
         return this / DateUtils.DAY_IN_MILLIS / 30
     }
 
+    fun Long.toWeeks(): Long {
+        return this / DateUtils.DAY_IN_MILLIS / 7
+    }
+
     fun Long.toDays(): Long {
         return this / DateUtils.DAY_IN_MILLIS
     }

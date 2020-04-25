@@ -21,6 +21,7 @@ import hearsilent.zeplin.extensions.LongExtension.toDays
 import hearsilent.zeplin.extensions.LongExtension.toHours
 import hearsilent.zeplin.extensions.LongExtension.toMinutes
 import hearsilent.zeplin.extensions.LongExtension.toMonths
+import hearsilent.zeplin.extensions.LongExtension.toWeeks
 import hearsilent.zeplin.extensions.LongExtension.toYears
 import hearsilent.zeplin.models.ScreenModel
 import kotlinx.android.synthetic.main.item_screen.view.*
@@ -95,6 +96,10 @@ class ScreenAdapter(
             duration.toMonths() > 0 -> {
                 holder.itemView.textView_updated.text =
                     mContext.getString(R.string.duration_month, duration.toMonths())
+            }
+            duration.toWeeks() > 0 -> {
+                holder.itemView.textView_updated.text =
+                    mContext.getString(R.string.duration_week, duration.toWeeks())
             }
             duration.toDays() > 0 -> {
                 holder.itemView.textView_updated.text =
