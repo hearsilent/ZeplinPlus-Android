@@ -4,24 +4,26 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import android.text.TextUtils
-import android.util.Log
-import androidx.appcompat.app.AlertDialog
+import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
 import hearsilent.zeplin.R
+import hearsilent.zeplin.adapter.ProjectAdapter
+import hearsilent.zeplin.callback.ProjectsCallback
 import hearsilent.zeplin.callback.ScreenCallback
 import hearsilent.zeplin.callback.TokenCallback
 import hearsilent.zeplin.libs.AccessHelper
 import hearsilent.zeplin.libs.Constant
 import hearsilent.zeplin.libs.Memory
+import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
 import hearsilent.zeplin.models.TokenModel
+import kotlinx.android.synthetic.main.activity_main.*
 
 
-class MainActivity : AppCompatActivity() {
-
-    private var mZeplinToken: String? = null
+class MainActivity : AppCompatActivity(), View.OnClickListener {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -31,65 +33,134 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun setUpViews() {
-        val model = Memory.getObject(this@MainActivity, Constant.PREF_ZEPLIN_TOKEN, TokenModel::class.java)
+        button_login.setOnClickListener(this)
+
+        val model = Memory.getObject(this, Constant.PREF_ZEPLIN_TOKEN, TokenModel::class.java)
         if (model == null) {
             checkZeplinToken()
         } else {
-            val data: Uri? = intent.data
-            if (data != null && data.scheme.equals("zpl")) {
-                if (data.host.equals("screen")) {
-                    val pid = data.getQueryParameter("pid")
-                    val sid = data.getQueryParameter("sids")
-                    if (!TextUtils.isEmpty(pid) && !TextUtils.isEmpty(sid))
-                        AccessHelper.getScreen(this, pid!!, sid!!, object : ScreenCallback() {
-                            override fun onSuccess(screen: ScreenModel) {
-                                runOnUiThread {
-                                    val intent = Intent(this@MainActivity, ScreenActivity::class.java).apply {
+            if (!checkIntent()) {
+                fetchProject()
+            }
+        }
+    }
+
+    private fun checkIntent(): Boolean {
+        val data: Uri? = intent.data
+        if (data != null && data.scheme.equals("zpl")) {
+            if (data.host.equals("screen")) {
+                val pid = data.getQueryParameter("pid")
+                val sid = data.getQueryParameter("sids")
+                if (!TextUtils.isEmpty(pid) && !TextUtils.isEmpty(sid)) {
+                    AccessHelper.getScreen(this, pid!!, sid!!, object : ScreenCallback() {
+                        override fun onSuccess(screen: ScreenModel) {
+                            if (isFinishing) {
+                                return
+                            }
+                            runOnUiThread {
+                                val intent =
+                                    Intent(this@MainActivity, ScreenActivity::class.java).apply {
                                         putExtra("url", screen.image.original_url)
                                     }
-                                    startActivity(intent)
-                                }
+                                startActivity(intent)
+                                finish()
                             }
+                        }
 
-                            override fun onFail(errorMessage: String?) {
-                                Log.wtf(Constant.TAG, errorMessage)
+                        override fun onFail(errorMessage: String?) {
+                            if (isFinishing) {
+                                return
                             }
-                        })
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    errorMessage,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                fetchProject()
+                            }
+                        }
+                    })
+                    return true
                 }
             }
         }
+        return false
     }
 
     private fun checkZeplinToken() {
         val data: Uri? = intent.data
         if (data != null && data.scheme.equals("hearsilent")) {
+            button_login.visibility = View.GONE
+            recyclerView.visibility = View.VISIBLE
+
             val code = data.getQueryParameter("code")
             code?.let {
                 AccessHelper.zeplinOauth(it, object : TokenCallback() {
                     override fun onSuccess(token: TokenModel) {
                         Memory.setObject(this@MainActivity, Constant.PREF_ZEPLIN_TOKEN, token)
+                        runOnUiThread {
+                            Toast.makeText(
+                                this@MainActivity,
+                                R.string.get_zeplin_token_success,
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            fetchProject()
+                        }
                     }
 
                     override fun onFail(errorMessage: String?) {
-                        Log.wtf(Constant.TAG, errorMessage)
+                        runOnUiThread {
+                            button_login.visibility = View.VISIBLE
+                            recyclerView.visibility = View.INVISIBLE
+                            Toast.makeText(
+                                this@MainActivity,
+                                errorMessage,
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 })
             }
-        } else if (TextUtils.isEmpty(mZeplinToken)) {
-            showZeplinTokenDialog()
+        } else {
+            button_login.visibility = View.VISIBLE
+            recyclerView.visibility = View.INVISIBLE
         }
     }
 
-    private fun showZeplinTokenDialog() {
-        AlertDialog.Builder(this).setTitle("Blablablabla")
-                .setMessage("Blablabla")
-                .setPositiveButton("OK") { _, _ ->
-                    val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
-                    builder.setToolbarColor(
-                            ContextCompat.getColor(this@MainActivity, R.color.colorPrimary))
-                    val customTabsIntent: CustomTabsIntent = builder.build()
-                    customTabsIntent.launchUrl(this@MainActivity,
-                            Uri.parse(AccessHelper.ZEPLIN_AUTHORIZE_URL))
-                }.setCancelable(false).show()
+    private fun fetchProject() {
+        AccessHelper.getProjects(this, object : ProjectsCallback() {
+            override fun onSuccess(projects: List<ProjectModel>) {
+                runOnUiThread {
+                    recyclerView.setHasFixedSize(true)
+                    recyclerView.adapter = ProjectAdapter(this@MainActivity, projects)
+                }
+            }
+
+            override fun onFail(errorMessage: String?) {
+                runOnUiThread {
+                    Toast.makeText(
+                        this@MainActivity,
+                        errorMessage,
+                        Toast.LENGTH_LONG
+                    ).show()
+                }
+            }
+        })
     }
+
+    override fun onClick(v: View?) {
+        if (v == button_login) {
+            val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
+            builder.setToolbarColor(
+                ContextCompat.getColor(this@MainActivity, R.color.colorPrimary)
+            )
+            val customTabsIntent: CustomTabsIntent = builder.build()
+            customTabsIntent.launchUrl(
+                this@MainActivity,
+                Uri.parse(AccessHelper.ZEPLIN_AUTHORIZE_URL)
+            )
+        }
+    }
+
 }

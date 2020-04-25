@@ -2,9 +2,12 @@ package hearsilent.zeplin.libs
 
 import android.content.Context
 import android.text.TextUtils
+import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import hearsilent.zeplin.callback.ProjectsCallback
 import hearsilent.zeplin.callback.ScreenCallback
 import hearsilent.zeplin.callback.TokenCallback
+import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
 import hearsilent.zeplin.models.TokenModel
 import okhttp3.*
@@ -14,11 +17,14 @@ import java.util.concurrent.TimeUnit
 
 object AccessHelper {
 
+    private const val ZEPLIN_BASE_URL = "https://api.zeplin.dev/v1"
+
     const val ZEPLIN_AUTHORIZE_URL =
-        "https://api.zeplin.dev/v1/oauth/authorize?client_id=${Constant.CLIENT_ID}&redirect_uri=${Constant.REDIRECT_URI}&response_type=code"
-    private const val ZEPLIN_OAUTH_ACCESS_URL =
-        "https://api.zeplin.dev/v1/oauth/token"
-    private const val ZEPLIN_SCREEN_URL = "https://api.zeplin.dev/v1/projects/%s/screens/%s"
+        "${ZEPLIN_BASE_URL}/oauth/authorize?client_id=${Constant.CLIENT_ID}&redirect_uri=${Constant.REDIRECT_URI}&response_type=code"
+    private const val ZEPLIN_OAUTH_ACCESS_URL = "${ZEPLIN_BASE_URL}/oauth/token"
+
+    private const val ZEPLIN_PROJECTS_URL = "${ZEPLIN_BASE_URL}/projects"
+    private const val ZEPLIN_SCREEN_URL = "${ZEPLIN_BASE_URL}/projects/%s/screens/%s"
 
     private var mClient: OkHttpClient = init()
 
@@ -60,6 +66,37 @@ object AccessHelper {
                     val body = responseBodyCopy.string()
                     val model = jacksonObjectMapper().readerFor(TokenModel::class.java)
                         .readValue<TokenModel>(body)
+                    callback.onSuccess(model)
+                } catch (e: Exception) {
+                    callback.onFail(e.toString())
+                }
+            }
+        })
+    }
+
+    fun getProjects(context: Context, callback: ProjectsCallback) {
+        val token = getOauthToken(context)
+        if (TextUtils.isEmpty(token)) {
+            callback.onFail("Token is empty.")
+            return
+        }
+
+        val request: Request =
+            Request.Builder().header("authorization", "Bearer $token").url(ZEPLIN_PROJECTS_URL)
+                .get().build()
+
+        mClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback.onFail(e.toString())
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val responseBodyCopy = response.peekBody(Long.MAX_VALUE)
+                    val body = responseBodyCopy.string()
+                    val model = jacksonObjectMapper().readerFor(object :
+                        TypeReference<List<ProjectModel>>() {})
+                        .readValue<List<ProjectModel>>(body)
                     callback.onSuccess(model)
                 } catch (e: Exception) {
                     callback.onFail(e.toString())
