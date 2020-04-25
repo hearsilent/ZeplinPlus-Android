@@ -6,8 +6,9 @@
     android:layout_height="wrap_content"
     android:layout_margin="6dp"
     android:elevation="4dp"
-    app:cardBackgroundColor="@color/bg_white_secondary"
-    app:cardCornerRadius="4dp">
+    app:cardBackgroundColor="@color/bg_secondary"
+    app:cardCornerRadius="4dp"
+    app:rippleColor="@color/ripple">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -18,7 +19,7 @@
             android:layout_width="0dp"
             android:layout_height="0dp"
             android:adjustViewBounds="true"
-            android:background="@color/bg_white"
+            android:background="@color/placeholder"
             android:contentDescription="@null"
             app:layout_constraintDimensionRatio="H,3:1"
             app:layout_constraintEnd_toEndOf="parent"
@@ -31,7 +32,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="12dp"
             android:layout_marginEnd="16dp"
-            android:textColor="@color/black_text_secondary"
+            android:textColor="@color/text_secondary"
             android:textSize="12sp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toBottomOf="@id/imageView"
@@ -65,7 +66,7 @@
             android:ellipsize="end"
             android:fontFamily="sans-serif-medium"
             android:maxLines="1"
-            android:textColor="@color/black_text"
+            android:textColor="@color/text"
             android:textSize="20sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

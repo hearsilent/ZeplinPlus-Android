@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <color name="toolbar">@color/bg_secondary</color>
+
+    <color name="bg">#272727</color>
+    <color name="bg_secondary">#393939</color>
+    <color name="placeholder">@color/grey_700</color>
+
+    <color name="ripple">#33ffffff</color>
+
+    <color name="dividers">#1fffffff</color>
+    <color name="text_disabled">#4dffffff</color>
+    <color name="text_tertiary">#7fffffff</color>
+    <color name="text_secondary">#b3ffffff</color>
+    <color name="text">#ffffff</color>
+
+</resources>

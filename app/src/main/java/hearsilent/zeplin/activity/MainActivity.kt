@@ -9,6 +9,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.content.ContextCompat
+import com.fasterxml.jackson.databind.ObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.adapter.ProjectAdapter
 import hearsilent.zeplin.callback.ProjectsCallback
@@ -33,6 +34,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun setUpViews() {
+        setSupportActionBar(toolbar)
+
+        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.bg_secondary)
         swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
         swipeRefreshLayout.setOnRefreshListener { fetchProject() }
 
@@ -65,7 +69,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                             runOnUiThread {
                                 val intent =
                                     Intent(this@MainActivity, ScreenActivity::class.java).apply {
-                                        putExtra("url", screen.image.original_url)
+                                        putExtra(
+                                            "screen",
+                                            ObjectMapper().writeValueAsString(screen)
+                                        )
                                     }
                                 startActivity(intent)
                                 finish()

@@ -4,10 +4,20 @@
     <color name="colorPrimaryDark">#EE6723</color>
     <color name="colorAccent">#287AF6</color>
 
-    <color name="bg_black">#272727</color>
-    <color name="bg_black_secondary">#393939</color>
-    <color name="bg_white">#ebeced</color>
-    <color name="bg_white_secondary">#ffffff</color>
+    <color name="toolbar">@color/colorPrimary</color>
+
+    <color name="bg">#ffffff</color>
+    <color name="bg_secondary">#ffffff</color>
+    <color name="placeholder">@color/grey_300</color>
+
+    <color name="ripple">#1f000000</color>
+
+    <color name="dividers">#1f000000</color>
+    <color name="text_disabled">#42000000</color>
+    <color name="text_tertiary">#61000000</color>
+    <color name="text_secondary">#8a000000</color>
+    <color name="text">#de000000</color>
+
 
     <!-- Material design colors -->
 
@@ -285,16 +295,6 @@
     <color name="blue_grey_900">#263238</color>
 
     <color name="black">#000000</color>
-    <color name="black_dividers">#1f000000</color>
-    <color name="black_text_disabled">#42000000</color>
-    <color name="black_text_tertiary">#61000000</color>
-    <color name="black_text_secondary">#8a000000</color>
-    <color name="black_text">#de000000</color>
-
     <color name="white">#ffffff</color>
-    <color name="white_dividers">#1fffffff</color>
-    <color name="white_text_disabled">#4dffffff</color>
-    <color name="white_text_tertiary">#7fffffff</color>
-    <color name="white_text_secondary">#b3ffffff</color>
-    <color name="white_text">#ffffff</color>
+
 </resources>
