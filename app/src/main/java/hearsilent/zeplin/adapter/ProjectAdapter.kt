@@ -12,12 +12,7 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.fasterxml.jackson.databind.ObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.activity.ProjectActivity
-import hearsilent.zeplin.extensions.LongExtension.toDays
-import hearsilent.zeplin.extensions.LongExtension.toHours
-import hearsilent.zeplin.extensions.LongExtension.toMinutes
-import hearsilent.zeplin.extensions.LongExtension.toMonths
-import hearsilent.zeplin.extensions.LongExtension.toWeeks
-import hearsilent.zeplin.extensions.LongExtension.toYears
+import hearsilent.zeplin.extensions.LongExtension.toDuration
 import hearsilent.zeplin.models.ProjectModel
 import kotlinx.android.synthetic.main.item_project.view.*
 
@@ -69,36 +64,8 @@ class ProjectAdapter(
         holder.itemView.textView_platform.text = model.platform
         holder.itemView.textView_name.text = model.name
 
-        val duration = System.currentTimeMillis() - model.updated * DateUtils.SECOND_IN_MILLIS
-        when {
-            duration.toYears() > 0 -> {
-                holder.itemView.textView_updated.text =
-                    mContext.getString(R.string.duration_year, duration.toYears())
-            }
-            duration.toMonths() > 0 -> {
-                holder.itemView.textView_updated.text =
-                    mContext.getString(R.string.duration_month, duration.toMonths())
-            }
-            duration.toWeeks() > 0 -> {
-                holder.itemView.textView_updated.text =
-                    mContext.getString(R.string.duration_week, duration.toWeeks())
-            }
-            duration.toDays() > 0 -> {
-                holder.itemView.textView_updated.text =
-                    mContext.getString(R.string.duration_day, duration.toDays())
-            }
-            duration.toHours() > 0 -> {
-                holder.itemView.textView_updated.text =
-                    mContext.getString(R.string.duration_hour, duration.toHours())
-            }
-            duration.toMinutes() > 0 -> {
-                holder.itemView.textView_updated.text =
-                    mContext.getString(R.string.duration_minute, duration.toMinutes())
-            }
-            else -> {
-                holder.itemView.textView_updated.text = mContext.getString(R.string.duration_now)
-            }
-        }
+        holder.itemView.textView_updated.text =
+            (model.updated * DateUtils.SECOND_IN_MILLIS).toDuration(mContext)
     }
 
     override fun getItemCount(): Int {

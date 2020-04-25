@@ -1,6 +1,7 @@
 package hearsilent.zeplin.activity
 
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
@@ -9,6 +10,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.adapter.ScreenAdapter
 import hearsilent.zeplin.callback.ScreensCallback
+import hearsilent.zeplin.extensions.LongExtension.toDuration
 import hearsilent.zeplin.libs.NetworkHelper
 import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
@@ -38,6 +40,8 @@ class ProjectActivity : AppCompatActivity(), View.OnClickListener {
         mProjectModel = jacksonObjectMapper().readerFor(ProjectModel::class.java)
             .readValue<ProjectModel>(intent.extras!!.getString("project"))
         supportActionBar!!.title = mProjectModel!!.name
+        supportActionBar!!.subtitle =
+            (mProjectModel!!.updated * DateUtils.SECOND_IN_MILLIS).toDuration(this)
 
         button_empty.setOnClickListener(this)
 

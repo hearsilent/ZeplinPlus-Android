@@ -2,6 +2,7 @@ package hearsilent.zeplin.activity
 
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.format.DateUtils
 import android.view.MenuItem
 import android.view.View
 import androidx.appcompat.app.AppCompatActivity
@@ -13,6 +14,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import hearsilent.zeplin.R
+import hearsilent.zeplin.extensions.LongExtension.toDuration
 import hearsilent.zeplin.models.ScreenModel
 import kotlinx.android.synthetic.main.activity_screen.*
 
@@ -35,6 +37,8 @@ class ScreenActivity : AppCompatActivity(), View.OnClickListener {
         mScreenModel = jacksonObjectMapper().readerFor(ScreenModel::class.java)
             .readValue<ScreenModel>(intent.extras!!.getString("screen"))
         supportActionBar!!.title = mScreenModel!!.name
+        supportActionBar!!.subtitle =
+            (mScreenModel!!.updated * DateUtils.SECOND_IN_MILLIS).toDuration(this)
 
         button_empty.setOnClickListener(this)
 
