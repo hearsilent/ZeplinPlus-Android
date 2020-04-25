@@ -12,12 +12,13 @@ import androidx.core.content.ContextCompat
 import com.fasterxml.jackson.databind.ObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.adapter.ProjectAdapter
+import hearsilent.zeplin.callback.ProjectCallback
 import hearsilent.zeplin.callback.ProjectsCallback
 import hearsilent.zeplin.callback.ScreenCallback
 import hearsilent.zeplin.callback.TokenCallback
-import hearsilent.zeplin.libs.AccessHelper
 import hearsilent.zeplin.libs.Constant
 import hearsilent.zeplin.libs.Memory
+import hearsilent.zeplin.libs.NetworkHelper
 import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
 import hearsilent.zeplin.models.TokenModel
@@ -61,7 +62,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 val sid = data.getQueryParameter("sids")
                 if (!TextUtils.isEmpty(pid) && !TextUtils.isEmpty(sid)) {
                     swipeRefreshLayout.isRefreshing = true
-                    AccessHelper.getScreen(this, pid!!, sid!!, object : ScreenCallback() {
+                    NetworkHelper.getScreen(this, pid!!, sid!!, object : ScreenCallback() {
                         override fun onSuccess(screen: ScreenModel) {
                             if (isFinishing) {
                                 return
@@ -72,6 +73,44 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                                         putExtra(
                                             "screen",
                                             ObjectMapper().writeValueAsString(screen)
+                                        )
+                                    }
+                                startActivity(intent)
+                                finish()
+                            }
+                        }
+
+                        override fun onFail(errorMessage: String?) {
+                            if (isFinishing) {
+                                return
+                            }
+                            runOnUiThread {
+                                Toast.makeText(
+                                    this@MainActivity,
+                                    errorMessage,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                                fetchProject()
+                            }
+                        }
+                    })
+                    return true
+                }
+            } else if (data.host.equals("project")) {
+                val pid = data.getQueryParameter("pid")
+                if (!TextUtils.isEmpty(pid)) {
+                    swipeRefreshLayout.isRefreshing = true
+                    NetworkHelper.getProject(this, pid!!, object : ProjectCallback() {
+                        override fun onSuccess(project: ProjectModel) {
+                            if (isFinishing) {
+                                return
+                            }
+                            runOnUiThread {
+                                val intent =
+                                    Intent(this@MainActivity, ProjectActivity::class.java).apply {
+                                        putExtra(
+                                            "project",
+                                            ObjectMapper().writeValueAsString(project)
                                         )
                                     }
                                 startActivity(intent)
@@ -109,7 +148,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val code = data.getQueryParameter("code")
             code?.let {
                 swipeRefreshLayout.isRefreshing = true
-                AccessHelper.zeplinOauth(it, object : TokenCallback() {
+                NetworkHelper.zeplinOauth(it, object : TokenCallback() {
                     override fun onSuccess(token: TokenModel) {
                         if (isFinishing) {
                             return
@@ -151,7 +190,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun fetchProject() {
         swipeRefreshLayout.isEnabled = true
         swipeRefreshLayout.isRefreshing = true
-        AccessHelper.getProjects(this, object : ProjectsCallback() {
+        NetworkHelper.getProjects(this, object : ProjectsCallback() {
             override fun onSuccess(projects: List<ProjectModel>) {
                 if (isFinishing) {
                     return
@@ -188,7 +227,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             val customTabsIntent: CustomTabsIntent = builder.build()
             customTabsIntent.launchUrl(
                 this@MainActivity,
-                Uri.parse(AccessHelper.ZEPLIN_AUTHORIZE_URL)
+                Uri.parse(NetworkHelper.ZEPLIN_AUTHORIZE_URL)
             )
         }
     }

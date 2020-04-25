@@ -8,7 +8,7 @@ import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.adapter.ScreenAdapter
 import hearsilent.zeplin.callback.ScreensCallback
-import hearsilent.zeplin.libs.AccessHelper
+import hearsilent.zeplin.libs.NetworkHelper
 import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -42,7 +42,7 @@ class ProjectActivity : AppCompatActivity() {
 
     private fun fetchScreens() {
         swipeRefreshLayout.isRefreshing = true
-        AccessHelper.getScreens(this, mProjectModel!!.id, object : ScreensCallback() {
+        NetworkHelper.getScreens(this, mProjectModel!!.id, object : ScreensCallback() {
             override fun onSuccess(screens: List<ScreenModel>) {
                 if (isFinishing) {
                     return

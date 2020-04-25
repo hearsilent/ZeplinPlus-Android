@@ -4,10 +4,7 @@ import android.content.Context
 import android.text.TextUtils
 import com.fasterxml.jackson.core.type.TypeReference
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import hearsilent.zeplin.callback.ProjectsCallback
-import hearsilent.zeplin.callback.ScreenCallback
-import hearsilent.zeplin.callback.ScreensCallback
-import hearsilent.zeplin.callback.TokenCallback
+import hearsilent.zeplin.callback.*
 import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
 import hearsilent.zeplin.models.TokenModel
@@ -16,7 +13,7 @@ import java.io.IOException
 import java.util.*
 import java.util.concurrent.TimeUnit
 
-object AccessHelper {
+object NetworkHelper {
 
     private const val ZEPLIN_BASE_URL = "https://api.zeplin.dev/v1"
 
@@ -25,6 +22,7 @@ object AccessHelper {
     private const val ZEPLIN_OAUTH_ACCESS_URL = "${ZEPLIN_BASE_URL}/oauth/token"
 
     private const val ZEPLIN_PROJECTS_URL = "${ZEPLIN_BASE_URL}/projects"
+    private const val ZEPLIN_PROJECT_URL = "${ZEPLIN_BASE_URL}/projects/%s"
     private const val ZEPLIN_SCREENS_URL =
         "${ZEPLIN_BASE_URL}/projects/%s/screens?sort=section&limit=999&offset=0"
     private const val ZEPLIN_SCREEN_URL = "${ZEPLIN_BASE_URL}/projects/%s/screens/%s"
@@ -100,6 +98,36 @@ object AccessHelper {
                     val model = jacksonObjectMapper().readerFor(object :
                         TypeReference<List<ProjectModel>>() {})
                         .readValue<List<ProjectModel>>(body)
+                    callback.onSuccess(model)
+                } catch (e: Exception) {
+                    callback.onFail(e.toString())
+                }
+            }
+        })
+    }
+
+    fun getProject(context: Context, pid: String, callback: ProjectCallback) {
+        val token = getOauthToken(context)
+        if (TextUtils.isEmpty(token)) {
+            callback.onFail("Token is empty.")
+            return
+        }
+
+        val url = String.format(Locale.getDefault(), ZEPLIN_PROJECT_URL, pid)
+        val request: Request =
+            Request.Builder().header("authorization", "Bearer $token").url(url).get().build()
+
+        mClient.newCall(request).enqueue(object : Callback {
+            override fun onFailure(call: Call, e: IOException) {
+                callback.onFail(e.toString())
+            }
+
+            override fun onResponse(call: Call, response: Response) {
+                try {
+                    val responseBodyCopy = response.peekBody(Long.MAX_VALUE)
+                    val body = responseBodyCopy.string()
+                    val model = jacksonObjectMapper().readerFor(ProjectModel::class.java)
+                        .readValue<ProjectModel>(body)
                     callback.onSuccess(model)
                 } catch (e: Exception) {
                     callback.onFail(e.toString())
