@@ -4,6 +4,7 @@
 
     <string name="duration_year">%dy</string>
     <string name="duration_month">%dmth</string>
+    <string name="duration_week">%dw</string>
     <string name="duration_day">%dd</string>
     <string name="duration_hour">%dh</string>
     <string name="duration_minute">%dm</string>
