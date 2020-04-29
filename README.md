@@ -37,7 +37,7 @@ object OauthConstant {
 - Fetch [single screen](https://docs.zeplin.dev/reference#getscreen)
 
 ## TODO
-- Show members
+- [Show members](https://docs.zeplin.dev/reference#getprojectmembers)
 - [Show notes](https://docs.zeplin.dev/reference#getscreennotes)
 - Sort screens by [sections](https://docs.zeplin.dev/reference#getscreensections)
 - Sort screens by last updated
