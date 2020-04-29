@@ -1,5 +1,5 @@
 # ZeplinPlus Android
-[![license](https://img.shields.io/github/license/hearsilent/ZeplinPlus-Android.svg?maxAge=2592000)](https://github.com/hearsilent/ZeplinPlus-Android/blob/master/LICENSE)
+[![license](https://img.shields.io/github/license/hearsilent/ZeplinPlus-Android.svg)](https://github.com/hearsilent/ZeplinPlus-Android/blob/master/LICENSE)
 
 ZeplinPlus is an Android app can view Zeplin screens by using the [Zeplin API](https://docs.zeplin.dev/reference)
 
@@ -30,23 +30,23 @@ object OauthConstant {
 ## Features
 - Auto DayNight switch
 - Support Zeplin app link (zpl)
-- Auto refresh oauth token
-- Fetch projects
-- Fetch single project
-- Fetch project's screens
-- Fetch single screen
+- Auto [refresh oauth token](https://docs.zeplin.dev/reference#oauthposttoken)
+- Fetch [projects](https://docs.zeplin.dev/reference#getprojects)
+- Fetch [single project](https://docs.zeplin.dev/reference#getproject)
+- Fetch [project's screens](https://docs.zeplin.dev/reference#getprojectscreens)
+- Fetch [single screen](https://docs.zeplin.dev/reference#getscreen)
 
 ## TODO
 - Show members
-- Show notes
-- Sort screens by sections
+- [Show notes](https://docs.zeplin.dev/reference#getscreennotes)
+- Sort screens by [sections](https://docs.zeplin.dev/reference#getscreensections)
 - Sort screens by last updated
-- Switch screen version 
-- Add note
+- Switch [screen version](https://docs.zeplin.dev/reference#getscreenversions)
+- [Add note](https://docs.zeplin.dev/reference#postscreennote)
 - Share project/screen
 - Download screen
 - Logout
-- Show component attributes (*Wait for API*)
+- Show component [layers](https://docs.zeplin.dev/reference#layer)
 - View notifications (*Wait for API*)
    
 ## Compatibility
