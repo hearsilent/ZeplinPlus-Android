@@ -6,27 +6,27 @@ import hearsilent.zeplin.R
 
 object LongExtension {
 
-    fun Long.toYears(): Long {
+    private fun Long.toYears(): Long {
         return this / DateUtils.DAY_IN_MILLIS / 365
     }
 
-    fun Long.toMonths(): Long {
+    private fun Long.toMonths(): Long {
         return this / DateUtils.DAY_IN_MILLIS / 30
     }
 
-    fun Long.toWeeks(): Long {
+    private fun Long.toWeeks(): Long {
         return this / DateUtils.DAY_IN_MILLIS / 7
     }
 
-    fun Long.toDays(): Long {
+    private fun Long.toDays(): Long {
         return this / DateUtils.DAY_IN_MILLIS
     }
 
-    fun Long.toHours(): Long {
+    private fun Long.toHours(): Long {
         return this / DateUtils.HOUR_IN_MILLIS
     }
 
-    fun Long.toMinutes(): Long {
+    private fun Long.toMinutes(): Long {
         return this / DateUtils.MINUTE_IN_MILLIS
     }
 
