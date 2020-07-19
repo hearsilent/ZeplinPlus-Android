@@ -80,7 +80,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
         if (data != null && data.scheme.equals("zpl")) {
             if (data.host.equals("screen")) {
                 val pid = data.getQueryParameter("pid")
-                val sid = data.getQueryParameter("sids")
+                var sid = data.getQueryParameter("sids")
+                if (TextUtils.isEmpty(sid)) {
+                    sid = data.getQueryParameter("sid");
+                }
                 if (!TextUtils.isEmpty(pid) && !TextUtils.isEmpty(sid)) {
                     swipeRefreshLayout.isRefreshing = true
                     NetworkHelper.getScreen(this, pid!!, sid!!, object : ScreenCallback() {
