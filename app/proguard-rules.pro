@@ -21,7 +21,7 @@
 #-renamesourcefileattribute SourceFile
 
 # Application classes that will be serialized/deserialized over Jackson
--keep class hearsilent.zeplin.models.** { *; }
+-keep class hearsilent.zeplin.models.* { *; }
 
 # Rename packages
 -optimizationpasses 30
@@ -36,10 +36,11 @@
 
 # Remove logs
 -assumenosideeffects class android.util.Log {
-    public static boolean isLoggable(java.lang.String, int);
-    public static int v(...);
-    public static int i(...);
-    public static int w(...);
-    public static int d(...);
-    public static int e(...);
+    v(...);
+    d(...);
+    i(...);
+    w(...);
+    e(...);
+    wtf(...);
+    println(...);
 }

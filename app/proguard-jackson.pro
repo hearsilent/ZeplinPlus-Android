@@ -6,7 +6,7 @@
 -keep class com.fasterxml.jackson.databind.ObjectWriter {
     public ** writeValueAsString(**);
 }
--keepnames class com.fasterxml.jackson.** { *; }
+-keepnames class com.fasterxml.jackson.* { *; }
 -dontwarn com.fasterxml.jackson.databind.**
 
 -keep class kotlin.Metadata { *; }
