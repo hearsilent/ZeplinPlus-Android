@@ -25,7 +25,7 @@ object NetworkHelper {
     private const val ZEPLIN_PROJECTS_URL = "${ZEPLIN_BASE_URL}/projects"
     private const val ZEPLIN_PROJECT_URL = "${ZEPLIN_BASE_URL}/projects/%s"
     private const val ZEPLIN_SCREENS_URL =
-        "${ZEPLIN_BASE_URL}/projects/%s/screens?sort=section&limit=999&offset=0"
+        "${ZEPLIN_BASE_URL}/projects/%s/screens?sort=section&limit=${Constant.PAGE_SIZE_OF_SCREENS}&offset=%d"
     private const val ZEPLIN_SCREEN_URL = "${ZEPLIN_BASE_URL}/projects/%s/screens/%s"
 
     private var mClient: OkHttpClient = init()
@@ -141,14 +141,14 @@ object NetworkHelper {
         })
     }
 
-    fun getScreens(context: Context, pid: String, callback: ScreensCallback) {
+    fun getScreens(context: Context, pid: String, offset: Int, callback: ScreensCallback) {
         val token = getOauthToken(context)
         if (TextUtils.isEmpty(token)) {
             callback.onFail("Token is empty.")
             return
         }
 
-        val url = String.format(Locale.getDefault(), ZEPLIN_SCREENS_URL, pid)
+        val url = String.format(Locale.getDefault(), ZEPLIN_SCREENS_URL, pid, offset)
         val request: Request =
             Request.Builder().header("authorization", "Bearer $token").url(url)
                 .get().build()

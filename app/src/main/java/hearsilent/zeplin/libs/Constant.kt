@@ -8,5 +8,5 @@ object Constant {
     const val CLIENT_ID = OauthConstant.CLIENT_ID
     const val CLIENT_SECRET = OauthConstant.CLIENT_SECRET
     const val REDIRECT_URI = OauthConstant.REDIRECT_URI
-
+    const val PAGE_SIZE_OF_SCREENS = 100
 }
