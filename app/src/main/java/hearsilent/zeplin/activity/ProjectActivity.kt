@@ -6,12 +6,16 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.Observer
+import androidx.paging.LivePagedListBuilder
+import androidx.paging.PagedList
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.adapter.ScreenAdapter
 import hearsilent.zeplin.callback.ScreensCallback
 import hearsilent.zeplin.extensions.LongExtension.toDuration
-import hearsilent.zeplin.libs.NetworkHelper
+import hearsilent.zeplin.libs.Constant
+import hearsilent.zeplin.libs.ScreenModelDataSourceFactory
 import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
 import kotlinx.android.synthetic.main.activity_main.*
@@ -20,7 +24,9 @@ import kotlinx.android.synthetic.main.activity_main.*
 class ProjectActivity : AppCompatActivity(), View.OnClickListener {
 
     private var mProjectModel: ProjectModel? = null
-    private var mScreenAdapter: ScreenAdapter? = null
+    private val mScreenAdapter: ScreenAdapter by lazy {
+        ScreenAdapter(this@ProjectActivity)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -45,6 +51,7 @@ class ProjectActivity : AppCompatActivity(), View.OnClickListener {
 
         button_empty.setOnClickListener(this)
 
+        recyclerView.adapter = mScreenAdapter
         fetchScreens()
     }
 
@@ -52,7 +59,7 @@ class ProjectActivity : AppCompatActivity(), View.OnClickListener {
         textView_empty.visibility = View.GONE
         button_empty.visibility = View.GONE
         swipeRefreshLayout.isRefreshing = true
-        NetworkHelper.getScreens(this, mProjectModel!!.id, object : ScreensCallback() {
+        val dataSourceFactory = ScreenModelDataSourceFactory(this, mProjectModel!!.id, object : ScreensCallback() {
             override fun onSuccess(screens: List<ScreenModel>) {
                 if (isFinishing) {
                     return
@@ -61,8 +68,6 @@ class ProjectActivity : AppCompatActivity(), View.OnClickListener {
                     swipeRefreshLayout.isRefreshing = false
                     recyclerView.visibility = View.VISIBLE
                     recyclerView.setHasFixedSize(true)
-                    mScreenAdapter = ScreenAdapter(this@ProjectActivity, screens)
-                    recyclerView.adapter = mScreenAdapter
                 }
             }
 
@@ -83,6 +88,13 @@ class ProjectActivity : AppCompatActivity(), View.OnClickListener {
                 }
             }
         })
+        val pagedListConfig =
+            PagedList.Config.Builder().setPageSize(Constant.PAGE_SIZE_OF_SCREENS).setEnablePlaceholders(false).build()
+
+        val livePagedList = LivePagedListBuilder(dataSourceFactory, pagedListConfig).build()
+        livePagedList.observe(this, Observer { pagedList: PagedList<ScreenModel> ->
+            mScreenAdapter.submitList(pagedList)
+        })
     }
 
     override fun onClick(v: View?) {
@@ -91,12 +103,6 @@ class ProjectActivity : AppCompatActivity(), View.OnClickListener {
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if (mScreenAdapter != null) {
-            mScreenAdapter!!.notifyDataSetChanged()
-        }
-    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (item.itemId == android.R.id.home) {

@@ -11,6 +11,8 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.constraintlayout.widget.ConstraintSet
 import androidx.core.app.ActivityOptionsCompat
 import androidx.core.util.Pair
+import androidx.paging.PagedListAdapter
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -24,9 +26,20 @@ import java.util.*
 
 
 class ScreenAdapter(
-    private val mContext: Context,
-    private val mList: List<ScreenModel>
-) : RecyclerView.Adapter<ScreenAdapter.ViewHolder>() {
+    private val mContext: Context
+) : PagedListAdapter<ScreenModel, ScreenAdapter.ViewHolder>(screenModelDiffCallback) {
+
+    companion object {
+        private val screenModelDiffCallback = object : DiffUtil.ItemCallback<ScreenModel>() {
+            override fun areItemsTheSame(oldItem: ScreenModel, newItem: ScreenModel): Boolean {
+                return oldItem.id == newItem.id
+            }
+
+            override fun areContentsTheSame(oldItem: ScreenModel, newItem: ScreenModel): Boolean {
+                return oldItem == newItem
+            }
+        }
+    }
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
@@ -38,7 +51,7 @@ class ScreenAdapter(
             if (adapterPosition == RecyclerView.NO_POSITION) {
                 return
             }
-            val model = mList[adapterPosition]
+            val model = getItem(adapterPosition)
             val intent =
                 Intent(mContext, ScreenActivity::class.java).apply {
                     putExtra(
@@ -67,7 +80,7 @@ class ScreenAdapter(
         holder: ViewHolder,
         position: Int
     ) {
-        val model = mList[position]
+        val model = getItem(position) ?: return
         val set = ConstraintSet()
         set.clone(holder.itemView as ConstraintLayout)
         set.setDimensionRatio(
@@ -86,9 +99,6 @@ class ScreenAdapter(
             (model.updated * DateUtils.SECOND_IN_MILLIS).toDuration(mContext)
     }
 
-    override fun getItemCount(): Int {
-        return mList.size
-    }
 
 
 }
