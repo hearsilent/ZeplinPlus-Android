@@ -99,6 +99,4 @@ class ScreenAdapter(
             (model.updated * DateUtils.SECOND_IN_MILLIS).toDuration(mContext)
     }
 
-
-
 }
