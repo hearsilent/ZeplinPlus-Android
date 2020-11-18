@@ -13,25 +13,27 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
-import hearsilent.zeplin.R
+import hearsilent.zeplin.databinding.ActivityScreenBinding
 import hearsilent.zeplin.extensions.LongExtension.toDuration
 import hearsilent.zeplin.models.ScreenModel
-import kotlinx.android.synthetic.main.activity_screen.*
 
 
 class ScreenActivity : AppCompatActivity(), View.OnClickListener {
+
+    private lateinit var binding: ActivityScreenBinding
 
     private var mScreenModel: ScreenModel? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_screen)
+        binding = ActivityScreenBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setUpViews()
     }
 
     private fun setUpViews() {
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         mScreenModel = jacksonObjectMapper().readerFor(ScreenModel::class.java)
@@ -40,13 +42,13 @@ class ScreenActivity : AppCompatActivity(), View.OnClickListener {
         supportActionBar!!.subtitle =
             (mScreenModel!!.updated * DateUtils.SECOND_IN_MILLIS).toDuration(this)
 
-        button_empty.setOnClickListener(this)
+        binding.buttonEmpty.setOnClickListener(this)
 
         loadImage()
     }
 
     private fun loadImage() {
-        progressBar.visibility = View.VISIBLE
+        binding.progressBar.visibility = View.VISIBLE
         Glide.with(applicationContext).load(mScreenModel!!.image.original_url)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .listener(object : RequestListener<Drawable?> {
@@ -56,9 +58,9 @@ class ScreenActivity : AppCompatActivity(), View.OnClickListener {
                     target: Target<Drawable?>?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    progressBar.visibility = View.GONE
-                    textView_empty.visibility = View.VISIBLE
-                    button_empty.visibility = View.VISIBLE
+                    binding.progressBar.visibility = View.GONE
+                    binding.textViewEmpty.visibility = View.VISIBLE
+                    binding.buttonEmpty.visibility = View.VISIBLE
                     return false
                 }
 
@@ -69,17 +71,17 @@ class ScreenActivity : AppCompatActivity(), View.OnClickListener {
                     dataSource: DataSource?,
                     isFirstResource: Boolean
                 ): Boolean {
-                    progressBar.visibility = View.GONE
+                    binding.progressBar.visibility = View.GONE
                     return false
                 }
             })
-            .into(photoView)
+            .into(binding.photoView)
     }
 
     override fun onClick(v: View?) {
-        if (v == button_empty) {
-            textView_empty.visibility = View.GONE
-            button_empty.visibility = View.GONE
+        if (v == binding.buttonEmpty) {
+            binding.textViewEmpty.visibility = View.GONE
+            binding.buttonEmpty.visibility = View.GONE
             loadImage()
         }
     }

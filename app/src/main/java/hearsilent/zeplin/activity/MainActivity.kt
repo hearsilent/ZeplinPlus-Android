@@ -19,33 +19,36 @@ import hearsilent.zeplin.callback.ProjectCallback
 import hearsilent.zeplin.callback.ProjectsCallback
 import hearsilent.zeplin.callback.ScreenCallback
 import hearsilent.zeplin.callback.TokenCallback
+import hearsilent.zeplin.databinding.ActivityMainBinding
 import hearsilent.zeplin.libs.Constant
 import hearsilent.zeplin.libs.Memory
 import hearsilent.zeplin.libs.NetworkHelper
 import hearsilent.zeplin.models.ProjectModel
 import hearsilent.zeplin.models.ScreenModel
 import hearsilent.zeplin.models.TokenModel
-import kotlinx.android.synthetic.main.activity_main.*
 
 
 class MainActivity : AppCompatActivity(), View.OnClickListener {
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         setUpViews()
     }
 
     private fun setUpViews() {
-        setSupportActionBar(toolbar)
+        setSupportActionBar(binding.toolbar)
 
-        swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.bg_secondary)
-        swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
-        swipeRefreshLayout.setOnRefreshListener { fetchProject() }
+        binding.swipeRefreshLayout.setProgressBackgroundColorSchemeResource(R.color.bg_secondary)
+        binding.swipeRefreshLayout.setColorSchemeResources(R.color.colorAccent)
+        binding.swipeRefreshLayout.setOnRefreshListener { fetchProject() }
 
-        button_empty.setOnClickListener(this)
-        button_login.setOnClickListener(this)
+        binding.buttonEmpty.setOnClickListener(this)
+        binding.buttonLogin.setOnClickListener(this)
 
         checkToken()
     }
@@ -53,14 +56,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun checkToken() {
         val model = Memory.getObject(this, Constant.PREF_ZEPLIN_TOKEN, TokenModel::class.java)
         if (model == null) {
-            swipeRefreshLayout.isEnabled = false
+            binding.swipeRefreshLayout.isEnabled = false
             checkZeplinToken()
         } else {
             if (!checkIntent()) {
                 if (System.currentTimeMillis() > model.expires_in - DateUtils.HOUR_IN_MILLIS) {
                     if (System.currentTimeMillis() > model.refresh_expires_in - DateUtils.HOUR_IN_MILLIS) {
                         Memory.setObject(this, Constant.PREF_ZEPLIN_TOKEN, null)
-                        swipeRefreshLayout.isEnabled = false
+                        binding.swipeRefreshLayout.isEnabled = false
                         checkZeplinToken()
                     } else {
                         if (BuildConfig.DEBUG) {
@@ -82,10 +85,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                 val pid = data.getQueryParameter("pid")
                 var sid = data.getQueryParameter("sids")
                 if (TextUtils.isEmpty(sid)) {
-                    sid = data.getQueryParameter("sid");
+                    sid = data.getQueryParameter("sid")
                 }
                 if (!TextUtils.isEmpty(pid) && !TextUtils.isEmpty(sid)) {
-                    swipeRefreshLayout.isRefreshing = true
+                    binding.swipeRefreshLayout.isRefreshing = true
                     NetworkHelper.getScreen(this, pid!!, sid!!, object : ScreenCallback() {
                         override fun onSuccess(screen: ScreenModel) {
                             if (isFinishing) {
@@ -123,7 +126,7 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
             } else if (data.host.equals("project")) {
                 val pid = data.getQueryParameter("pid")
                 if (!TextUtils.isEmpty(pid)) {
-                    swipeRefreshLayout.isRefreshing = true
+                    binding.swipeRefreshLayout.isRefreshing = true
                     NetworkHelper.getProject(this, pid!!, object : ProjectCallback() {
                         override fun onSuccess(project: ProjectModel) {
                             if (isFinishing) {
@@ -166,19 +169,19 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     private fun checkZeplinToken() {
         val data: Uri? = intent.data
         if (data != null && data.scheme.equals("hearsilent")) {
-            button_login.visibility = View.GONE
-            recyclerView.visibility = View.VISIBLE
+            binding.buttonLogin.visibility = View.GONE
+            binding.recyclerView.visibility = View.VISIBLE
 
             val code = data.getQueryParameter("code")
             code?.let { fetchToken(code, false) }
         } else {
-            button_login.visibility = View.VISIBLE
-            recyclerView.visibility = View.INVISIBLE
+            binding.buttonLogin.visibility = View.VISIBLE
+            binding.recyclerView.visibility = View.INVISIBLE
         }
     }
 
     private fun fetchToken(code: String, isRefresh: Boolean) {
-        swipeRefreshLayout.isRefreshing = true
+        binding.swipeRefreshLayout.isRefreshing = true
         NetworkHelper.zeplinOauth(code, isRefresh, object : TokenCallback() {
             override fun onSuccess(token: TokenModel) {
                 if (isFinishing) {
@@ -200,14 +203,14 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     return
                 }
                 runOnUiThread {
-                    swipeRefreshLayout.isRefreshing = false
+                    binding.swipeRefreshLayout.isRefreshing = false
                     if (isRefresh) {
-                        textView_empty.visibility = View.VISIBLE
-                        button_empty.visibility = View.VISIBLE
-                        recyclerView.visibility = View.INVISIBLE
+                        binding.textViewEmpty.visibility = View.VISIBLE
+                        binding.buttonEmpty.visibility = View.VISIBLE
+                        binding.recyclerView.visibility = View.INVISIBLE
                     } else {
-                        button_login.visibility = View.VISIBLE
-                        recyclerView.visibility = View.INVISIBLE
+                        binding.buttonLogin.visibility = View.VISIBLE
+                        binding.recyclerView.visibility = View.INVISIBLE
                         Toast.makeText(
                             this@MainActivity,
                             errorMessage,
@@ -220,20 +223,20 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     private fun fetchProject() {
-        textView_empty.visibility = View.GONE
-        button_empty.visibility = View.GONE
-        swipeRefreshLayout.isEnabled = true
-        swipeRefreshLayout.isRefreshing = true
+        binding.textViewEmpty.visibility = View.GONE
+        binding.buttonEmpty.visibility = View.GONE
+        binding.swipeRefreshLayout.isEnabled = true
+        binding.swipeRefreshLayout.isRefreshing = true
         NetworkHelper.getProjects(this, object : ProjectsCallback() {
             override fun onSuccess(projects: List<ProjectModel>) {
                 if (isFinishing) {
                     return
                 }
                 runOnUiThread {
-                    swipeRefreshLayout.isRefreshing = false
-                    recyclerView.visibility = View.VISIBLE
-                    recyclerView.setHasFixedSize(true)
-                    recyclerView.adapter = ProjectAdapter(this@MainActivity, projects)
+                    binding.swipeRefreshLayout.isRefreshing = false
+                    binding.recyclerView.visibility = View.VISIBLE
+                    binding.recyclerView.setHasFixedSize(true)
+                    binding.recyclerView.adapter = ProjectAdapter(this@MainActivity, projects)
                 }
             }
 
@@ -242,10 +245,10 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
                     return
                 }
                 runOnUiThread {
-                    swipeRefreshLayout.isRefreshing = false
-                    textView_empty.visibility = View.VISIBLE
-                    button_empty.visibility = View.VISIBLE
-                    recyclerView.visibility = View.INVISIBLE
+                    binding.swipeRefreshLayout.isRefreshing = false
+                    binding.textViewEmpty.visibility = View.VISIBLE
+                    binding.buttonEmpty.visibility = View.VISIBLE
+                    binding.recyclerView.visibility = View.INVISIBLE
                     Toast.makeText(
                         this@MainActivity,
                         errorMessage,
@@ -257,9 +260,9 @@ class MainActivity : AppCompatActivity(), View.OnClickListener {
     }
 
     override fun onClick(v: View?) {
-        if (v == button_empty) {
+        if (v == binding.buttonEmpty) {
             checkToken()
-        } else if (v == button_login) {
+        } else if (v == binding.buttonLogin) {
             val builder: CustomTabsIntent.Builder = CustomTabsIntent.Builder()
             builder.setToolbarColor(
                 ContextCompat.getColor(this@MainActivity, R.color.toolbar)

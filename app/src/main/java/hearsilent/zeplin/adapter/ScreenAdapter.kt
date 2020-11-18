@@ -19,9 +19,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.fasterxml.jackson.databind.ObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.activity.ScreenActivity
+import hearsilent.zeplin.databinding.ItemScreenBinding
 import hearsilent.zeplin.extensions.LongExtension.toDuration
 import hearsilent.zeplin.models.ScreenModel
-import kotlinx.android.synthetic.main.item_screen.view.*
 import java.util.*
 
 
@@ -43,8 +43,10 @@ class ScreenAdapter(
 
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view), View.OnClickListener {
 
+        val binding = ItemScreenBinding.bind(view)
+
         init {
-            itemView.view_container.setOnClickListener(this)
+            binding.viewContainer.setOnClickListener(this)
         }
 
         override fun onClick(v: View?) {
@@ -60,7 +62,7 @@ class ScreenAdapter(
                     )
                 }
             val pairs: MutableList<Pair<View, String>> = ArrayList()
-            pairs.add(Pair.create(itemView.imageView, "screen"))
+            pairs.add(Pair.create(binding.imageView, "screen"))
             val options = ActivityOptionsCompat
                 .makeSceneTransitionAnimation((mContext as Activity), *pairs.toTypedArray())
             mContext.startActivity(intent, options.toBundle())
@@ -84,7 +86,7 @@ class ScreenAdapter(
         val set = ConstraintSet()
         set.clone(holder.itemView as ConstraintLayout)
         set.setDimensionRatio(
-            holder.itemView.view_container.id,
+            holder.binding.viewContainer.id,
             if (model.image.height / model.image.width.toFloat() > 2.165f) "1:2.165"
             else "${model.image.width}:${model.image.height}"
         )
@@ -92,10 +94,10 @@ class ScreenAdapter(
 
         Glide.with(mContext.applicationContext).load(model.image.original_url)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(holder.itemView.imageView)
-        holder.itemView.textView_name.text = model.name
+            .into(holder.binding.imageView)
+        holder.binding.textViewName.text = model.name
 
-        holder.itemView.textView_updated.text =
+        holder.binding.textViewUpdated.text =
             (model.updated * DateUtils.SECOND_IN_MILLIS).toDuration(mContext)
     }
 

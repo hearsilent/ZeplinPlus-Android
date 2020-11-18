@@ -12,9 +12,9 @@ import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.fasterxml.jackson.databind.ObjectMapper
 import hearsilent.zeplin.R
 import hearsilent.zeplin.activity.ProjectActivity
+import hearsilent.zeplin.databinding.ItemProjectBinding
 import hearsilent.zeplin.extensions.LongExtension.toDuration
 import hearsilent.zeplin.models.ProjectModel
-import kotlinx.android.synthetic.main.item_project.view.*
 
 class ProjectAdapter(
     private val mContext: Context,
@@ -23,6 +23,8 @@ class ProjectAdapter(
 
     inner class ViewHolder(view: View) :
         RecyclerView.ViewHolder(view), View.OnClickListener {
+
+        val binding = ItemProjectBinding.bind(view)
 
         init {
             itemView.setOnClickListener(this)
@@ -60,11 +62,11 @@ class ProjectAdapter(
         val model = mList[position]
         Glide.with(mContext.applicationContext).load(model.thumbnail)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .into(holder.itemView.imageView)
-        holder.itemView.textView_platform.text = model.platform
-        holder.itemView.textView_name.text = model.name
+            .into(holder.binding.imageView)
+        holder.binding.textViewPlatform.text = model.platform
+        holder.binding.textViewName.text = model.name
 
-        holder.itemView.textView_updated.text =
+        holder.binding.textViewUpdated.text =
             (model.updated * DateUtils.SECOND_IN_MILLIS).toDuration(mContext)
     }
 
